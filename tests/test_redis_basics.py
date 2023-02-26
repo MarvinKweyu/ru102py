@@ -16,17 +16,20 @@ def test_hello(redis, key_schema):
 
 def test_redis_list(redis, key_schema):
     key = key_schema.planets_list_key()
+    print(key)
 
     assert len(PLANETS) == 11
 
     # Add all test planets to a Redis list
+    # * where key = ru102py-test:planets:list
     result = redis.rpush(key, *PLANETS)
+    # redis.
 
     # Check that the length of the list in Redis is the same
     assert result == len(PLANETS)
 
     # Get the planets from the list
-    # Note: LRANGE is an O(n) command. Be careful running this command
+    # Note: LRANGE is an O(n) - linear time command. Be careful running this command
     # with large lists.
     planets = redis.lrange(key, 0, -1)
     assert planets == PLANETS
@@ -48,13 +51,13 @@ def test_redis_set(redis, key_schema):
     # Add planets to a Redis set
     redis.sadd(key, *PLANETS)
 
-    # Return the cardinality of the set
+    # Return the cardinality or num or items of the set
     assert redis.scard(key) == 9
 
     # Fetch all values from the set
     # Note: SMEMBERS is an O(n) command. Be careful running this command
     # with high-cardinality sets. Consider SSCAN as an alternative.
-    assert redis.smembers(key) == set(PLANETS)
+    assert redis.smembers(key) == set(PLANETS) # i.e set members should be equal to the pythin set created from the list
 
     # Pluto is, of course, no longer a first-class planet. Remove it.
     response = redis.srem(key, "Pluto")
@@ -80,4 +83,5 @@ def test_redis_hash(redis):
     assert stored_properties == earth_properties
 
     # Test that we can get a single property.
-    assert redis.hget(EARTH_KEY, "diameter_km") == earth_properties["diameter_km"]
+    assert redis.hget(
+        EARTH_KEY, "diameter_km") == earth_properties["diameter_km"]

@@ -1,5 +1,7 @@
 venv/
 env/
+.venv
+.tool-versions
 node_modules/
 
 *.pyc
